@@ -10,6 +10,7 @@ public class ChatAppUI {
     private static JTextArea chatArea;
     private static String username;
     private static String serverIp;
+    private static int fontSize = 14;
 
     public static void main(String[] args) {
 
@@ -26,12 +27,14 @@ public class ChatAppUI {
         JMenuItem dark = new JMenuItem("Dark");
         JMenuItem black = new JMenuItem("Black");
         JMenuItem gray = new JMenuItem("Gray");
+        JMenu controlMenu = new JMenu("Controls");
+        JMenuItem show = new JMenuItem("Show");
 
         chatArea = new JTextArea();
         chatArea.setEditable(false);
         chatArea.setBackground(Color.LIGHT_GRAY);
         chatArea.setForeground(Color.BLACK);
-        chatArea.setFont(new Font("MyFont", Font.ITALIC, 14));
+        chatArea.setFont(new Font("MyFont", Font.PLAIN, fontSize));
 
         JScrollPane scrollPane = new JScrollPane(chatArea,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, // Vertical scrollbar as needed
@@ -81,7 +84,10 @@ public class ChatAppUI {
         themeMenu.add(black);
         themeMenu.add(gray);
         menuBar.add(themeMenu);
+        menuBar.add(controlMenu);
+        controlMenu.add(show);
         frame.setJMenuBar(menuBar);
+        
 
         sendButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -94,6 +100,12 @@ public class ChatAppUI {
             }
         });
 
+        show.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "F1 for Zoom-IN \nF2 for Zoom-OUT \nF3 for BOLD text", "Controls", JOptionPane.NO_OPTION);
+            }
+        });
+    
         // Add KeyListener to inputField to send message when Enter is pressed
         inputField.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -117,10 +129,20 @@ public class ChatAppUI {
         });
 
         chatArea.addKeyListener(new KeyAdapter() {
+            private boolean isBold = false; // Variable to track font style
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_F1) { // Corrected comparison operator
-                    chatArea.setFont(new Font("Arial", Font.BOLD, 16)); // Use chatArea instead of textArea
+                if (e.getKeyCode() == KeyEvent.VK_F1) { 
+					chatArea.setFont(new Font("Arial", isBold ? Font.BOLD : Font.PLAIN, fontSize++));
+                }
+
+                if (e.getKeyCode() == KeyEvent.VK_F2) { 
+                    chatArea.setFont(new Font("Arial", isBold ? Font.BOLD : Font.PLAIN, fontSize--));
+                }
+
+                if (e.getKeyCode() == KeyEvent.VK_F3) { 
+                    isBold = !isBold; // Toggle bold state
+                    chatArea.setFont(new Font("Arial", isBold ? Font.BOLD : Font.PLAIN, fontSize)); 
                 }
             }
         });
@@ -130,12 +152,12 @@ public class ChatAppUI {
         // Start the client in a new thread
         new Thread(ChatAppUI::startClient).start();
     }
-
+    
     private static void startClient() {
 
         serverIp = JOptionPane.showInputDialog("Enter Server IP:");
         if (serverIp == null || serverIp.trim().isEmpty()) {
-            serverIp = "192.168.96.110"; // Default
+            serverIp = "192.168.230.106"; // Default
         }
 
         username = JOptionPane.showInputDialog("Enter your name:");
@@ -145,7 +167,8 @@ public class ChatAppUI {
 
         try {
             // System.out.println("Connecting to server...");
-            Socket socket = new Socket(serverIp, 8080); // Change this to the server's IP
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(serverIp, 8080), 10000); // 10 second timeout
             JOptionPane.showMessageDialog(null, "Connection Successful");
             chatArea.append("Connected to server\n");
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -166,8 +189,7 @@ public class ChatAppUI {
 
             socket.close();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Failed to connect to the server.", "Connection Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Failed to connect to the server.", "Connection Error",JOptionPane.ERROR_MESSAGE);
             // System.out.println("Error: " + e.getMessage());
         }
     }
