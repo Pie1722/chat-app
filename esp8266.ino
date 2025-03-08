@@ -1,8 +1,8 @@
 #include <ESP8266WiFi.h>
 
 // WiFi credentials
-const char* ssid = "Pie";
-const char* password = "Pie@147258";
+const char* ssid = "";
+const char* password = "";
 
 // Server listening on port 8080
 WiFiServer server(8080);
@@ -11,9 +11,9 @@ WiFiServer server(8080);
 const int maxClients = 6;
 WiFiClient clients[maxClients];  // Array to store up to 6 clients
 
-IPAddress local_IP(192,168,96,110);  // Static IP
-IPAddress gateway(192,168,96,139);   // router gateway ip
-IPAddress subnet(255,255,255,0);    // Subnet Mask
+IPAddress local_IP();  // Static IP
+IPAddress gateway();   // router gateway ip
+IPAddress subnet();    // Subnet Mask
 
 void setup() {
   // Start serial communication
