@@ -157,7 +157,7 @@ public class ChatAppUI {
 
         serverIp = JOptionPane.showInputDialog("Enter Server IP:");
         if (serverIp == null || serverIp.trim().isEmpty()) {
-            serverIp = "192.168.230.106"; // Default
+            serverIp = ""; // Default
         }
 
         username = JOptionPane.showInputDialog("Enter your name:");
